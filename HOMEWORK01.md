@@ -31,13 +31,9 @@ psql
 9. В первой сессии создаю новую таблицу и наполняю ее данными
 ```sql
  CREATE TABLE persons(id serial, first_name text, second_name text);
-CREATE TABLE
  INSERT INTO persons(first_name, second_name) VALUES('ivan', 'ivanov');
-INSERT 0 1
  INSERT INTO persons(first_name, second_name) VALUES('petr', 'petrov');
-INSERT 0 1
  COMMIT;
-COMMIT
 ```
 10. Проверяю уровень изоляции в обеих сессиях
 ```sql 
@@ -50,12 +46,10 @@ SHOW transaction isolation level;
 11. Начинаю новую транзакцию в обеих сессиях с дефолтным (не меняя) уровнем изоляции
 ```sql 
 BEGIN;
-BEGIN
 ```
 12. В первой сессии добавляю новую запись insert into persons(first_name, second_name) values('sergey', 'sergeev');
 ```sql 
 INSERT INTO persons(first_name, second_name) VALUES('sergey', 'sergeev');
-INSERT 0 1
 ```
 13. Во второй сессии делаю select from persons. Новой записи нет,потому что уровень изоляции транзакции read committed. Транзакция в первой сессии еще не зафиксирована.
 ```sql 
@@ -80,19 +74,15 @@ SELECT * FROM persons;
   3 | sergey     | sergeev
 (3 rows)
 COMMIT;
-COMMIT
 ```
 16. Начинаю новые но уже repeatable read транзации.
 ```sql 
 BEGIN;
-BEGIN
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-SET
 ```
 17. В первой сессии делаю INSERT INTO persons(first_name, second_name) VALUES('sveta', 'svetova');
 ```sql 
 INSERT INTO persons(first_name, second_name) VALUES('sveta', 'svetova');
-INSERT 0 1
 ```
 18. Во второй сессии делаю SELECT * FROM persons; Новую запись я не вижу, так как выставлен уровень repeatable read.Транзакция с таким уровнем видит видит “снимок” базы данных на момент начала транзакции. Все изменения, сделанные другими транзакциями после начала этой транзакции, будут невидимы.
 ```sql 
@@ -107,7 +97,6 @@ SELECT * FROM persons;
 19. Завершаю первую транзакцию, делаю SELECT * FROM persons во второй сессии.Новую запись я не увидел, так как транзакция во 2-ой сессии видит все тот же "снимок" бд на момент начала этой транзакции.
 ```sql 
 COMMIT;
-COMMIT
 во 2 сессии:
 SELECT * FROM persons;
 id | first_name | second_name
@@ -121,7 +110,6 @@ id | first_name | second_name
 20. Завершаю вторую транзакцию и делаю select * from persons второй сессии. Новые данные вижу, так как происходит чтение нового “снимка” бд, включающего все зафиксированные изменения, которые произошли до этого момента.
 ```sql 
 COMMIT;
-COMMIT
 postgres=# SELECT * FROM persons;
  id | first_name | second_name
 ----+------------+-------------
