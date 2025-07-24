@@ -45,7 +45,7 @@ CREATE TABLE hw_schema.products_backup AS TABLE hw_schema.products WITH NO DATA;
 ```
 pg_dump -U postgres -d hw_backup -n hw_schema -t hw_schema.products -t hw_schema.products_backup -F c -f /var/lib/postgresql/backups/custom_backup.dump
 ```
-8. Используя утилиту pg_restore восстановил в новую БД только вторую таблицу!
+8. Используя утилиту pg_restore восстановил в новую БД только вторую таблицу
 ```
 CREATE DATABASE hw_restored;
 psql -U postgres -d hw_restored -c "CREATE SCHEMA IF NOT EXISTS hw_schema;"
